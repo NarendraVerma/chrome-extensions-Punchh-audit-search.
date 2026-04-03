@@ -361,19 +361,23 @@
     isSearching = true;
     const needle = keyword.toLowerCase();
 
-    let currentPage = 1;
+    let displayPage = getPageNumberFromLocation(window.location.href) ?? 1;
+    let stepsTaken = 0;
     let foundOnPage = 0;
 
-    setStatus(`Searching page ${currentPage}...`);
+    setStatus(`Searching page ${displayPage}...`);
 
-    while (currentPage <= maxPages && !cancelSearch) {
+    while (stepsTaken < maxPages && !cancelSearch) {
+      const fromUrl = getPageNumberFromLocation(window.location.href);
+      if (fromUrl != null) displayPage = fromUrl;
+
       const rows = Array.from(document.querySelectorAll(rowSelector));
       foundOnPage = highlightMatchingRows(rows, needle);
 
       if (foundOnPage > 0) {
-        setStatus(`Found ${foundOnPage} match(es) on page ${currentPage}.`);
+        setStatus(`Found ${foundOnPage} match(es) on page ${displayPage}.`);
         clearActiveSearchSession();
-        alert(`Found "${keyword}" on page ${currentPage}.`);
+        alert(`Found "${keyword}" on page ${displayPage}.`);
         return;
       }
 
@@ -386,13 +390,19 @@
       }
 
       const previousSnapshot = getRowsSnapshot(rows);
-      setStatus(`No match on page ${currentPage}. Moving next...`);
+      setStatus(`No match on page ${displayPage}. Moving next...`);
       nextButton.click();
 
       await waitForPageChange(rowSelector, previousSnapshot, delayMs);
 
-      currentPage += 1;
-      setStatus(`Searching page ${currentPage}...`);
+      stepsTaken += 1;
+      const afterUrl = getPageNumberFromLocation(window.location.href);
+      if (afterUrl != null) {
+        displayPage = afterUrl;
+      } else {
+        displayPage += 1;
+      }
+      setStatus(`Searching page ${displayPage}...`);
     }
 
     if (cancelSearch) {
@@ -402,7 +412,7 @@
     }
 
     clearActiveSearchSession();
-    setStatus(`Reached safety limit (${maxPages} pages).`);
+    setStatus(`Reached safety limit (${maxPages} page transitions).`);
   }
 
   function getClickableNext(selector) {
@@ -506,6 +516,27 @@
       return `${u.origin}${u.pathname}${u.search}`;
     } catch (_err) {
       return String(urlValue || "");
+    }
+  }
+
+  /**
+   * Reads pagination page from URL (e.g. Rails ?page=293). Returns null if absent so callers
+   * can fall back to a running counter (AJAX tables that do not update the query string).
+   */
+  function getPageNumberFromLocation(href) {
+    try {
+      const u = new URL(href, window.location.href);
+      const keys = ["page", "p", "pageNumber", "page_num"];
+      for (const key of keys) {
+        if (!u.searchParams.has(key)) continue;
+        const raw = u.searchParams.get(key);
+        if (raw == null || raw === "") continue;
+        const n = parseInt(String(raw).trim(), 10);
+        if (Number.isFinite(n) && n >= 1) return n;
+      }
+      return null;
+    } catch (_err) {
+      return null;
     }
   }
 
