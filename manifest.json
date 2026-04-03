@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Punchh Audit log search helper",
+  "version": "1.0.0",
+  "description": "Search paginated dashboard data by auto-clicking Next and scanning each page.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://dashboard.punchh.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
