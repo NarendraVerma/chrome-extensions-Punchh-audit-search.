@@ -26,6 +26,10 @@ This extension performs deep/global search across paginated Punchh audit log tab
 4. Click **Hide** to collapse the panel; the **Audit search** button stays available to reopen it.
 5. Click **Stop** any time to halt a running search.
 
+## Demo
+
+Check out the demo video here: [demo.mov](demo.mov)
+
 ## Notes
 
 - If pagination updates with AJAX, the script waits for row content changes before scanning again.
