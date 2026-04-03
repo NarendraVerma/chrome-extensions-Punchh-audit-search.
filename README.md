@@ -28,7 +28,7 @@ This extension performs deep/global search across paginated Punchh audit log tab
 
 ## Demo
 
-Check out the demo video here: [demo.mov](demo.mov)
+Check out the demo video here: [demo.mov](https://youtu.be/yT-i3q90SeE)
 
 ## Notes
 
